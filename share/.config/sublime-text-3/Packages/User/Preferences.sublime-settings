@@ -1,0 +1,27 @@
+{
+	"auto_match_enabled": false,
+	"color_scheme": "Packages/sublime-monokai-black/Monokai Black.tmTheme",
+	"draw_white_space": "all",
+	"enable_telemetry": false,
+	"find_selected_text": true,
+	"font_face": "Liberation Mono",
+	"font_options":
+	[
+		"no_antialias"
+	],
+	"font_size": 10,
+	"highlight_line": true,
+	"ignored_packages":
+	[
+		"Vintage"
+	],
+	"open_files_in_new_window": false,
+	"rulers":
+	[
+		80,
+		120
+	],
+	"show_full_path": true,
+	"tab_size": 2,
+	"translate_tabs_to_spaces": true
+}

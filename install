@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+
+# Get SOURCE_DIR resolving symbolic links
+# http://stackoverflow.com/questions/59895/can-a-bash-script-tell-what-directory-its-stored-in/246128#246128
+SOURCE="${BASH_SOURCE[0]}"
+while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symlink
+  SOURCE_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
+  SOURCE="$(readlink "$SOURCE")"
+  # LP: modified to append path correctly when SOURCE_DIR is "/"
+  [[ $SOURCE != /* ]] && SOURCE="${SOURCE_DIR%\/}/$SOURCE" # if $SOURCE was a relative symlink, we need to resolve it relative to the path where the symlink file was located
+done
+SOURCE_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
+
+[[ $1 == "-v" ]] && VERBOSE=-v
+
+link() {
+    if [ "$1" -ef "$2" ]; then
+        [ -z "$VERBOSE" ] || echo "Already linked \"$2\" to \"$1\""
+    else
+        ( echo "linking \"$2\" to \"$1\"" && ln -s "$1" "$2" )
+    fi
+}
+
+append_line() {
+    [ -f "$2" ] || touch "$2"
+    lines=$(grep -nF "$1" "$2" | sed 's/:.*//' | tr '\n' ' ')
+    if [ -n "$lines" ]; then
+        [ -z "$VERBOSE" ] || echo "Already appended \"$1\" to \"$2\": line $lines"
+    else
+        # add newline before appending
+        if [ -n "$(tail -c 1 "$2")" ]; then
+            echo >> "$2"
+        fi
+        echo "$1" >> "$2"
+        echo "Appended \"$1\" to \"$2\""
+    fi
+}
+
+append_source() {
+    append_line "[ -f \"$1\" ] && source \"$1\" || true" "$2"
+}
+
+if [[ "$OSTYPE" != "linux-gnu" ]]; then
+    echo "Not linux-gnu, not installing linuxrc."
+    exit 0
+fi
+
+if [ -z "$DISPLAY" ]; then
+    echo "DISPLAY not set, not installing linuxrc."
+else
+    append_source "$SOURCE_DIR/bin/path.bashrc" "$HOME/.bashrc"
+
+    mkdir -p "$HOME/.kde/share/apps/konsole" # debian 8 & ubuntu 14.04
+    link "$SOURCE_DIR/share/.local/share/kxmlgui5/konsole/konsoleui.rc" "$HOME/.kde/share/apps/konsole/konsoleui.rc"
+
+    mkdir -p "$HOME/.local/share/kxmlgui5/konsole" # ubuntu 15.04
+    link "$SOURCE_DIR/share/.local/share/kxmlgui5/konsole/konsoleui.rc" "$HOME/.local/share/kxmlgui5/konsole/konsoleui.rc"
+
+    mkdir -p "$HOME/.config/sublime-text-3/Packages/User"
+    link "$SOURCE_DIR/share/.config/sublime-text-3/Packages/User/Preferences.sublime-settings" "$HOME/.config/sublime-text-3/Packages/User/Preferences.sublime-settings"
+
+    sudo apt-get install xclip
+fi

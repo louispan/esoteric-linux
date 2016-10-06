@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+
+# Get SOURCE_DIR resolving symbolic links
+# http://stackoverflow.com/questions/59895/can-a-bash-script-tell-what-directory-its-stored-in/246128#246128
+SOURCE="${BASH_SOURCE[0]}"
+while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symlink
+  SOURCE_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
+  SOURCE="$(readlink "$SOURCE")"
+  # LP: modified to append path correctly when SOURCE_DIR is "/"
+  [[ $SOURCE != /* ]] && SOURCE="${SOURCE_DIR%\/}/$SOURCE" # if $SOURCE was a relative symlink, we need to resolve it relative to the path where the symlink file was located
+done
+SOURCE_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
+
+# Listen for WOL packet just before sleep.
+# Clients will need to remember this machine's MAC address
+# and use a program like wakeonlan to send the WOL packet.
+# eg.
+#
+#     sudo apt-get install wakeonlan
+#     wakeonlan {MAC-ADDRESS}
+
+sudo apt-get install ethtool
+sudo apt-get install pm-utils
+sudo cp "$SOURCE_DIR/70wol" /usr/lib/pm-utils/sleep.d"
