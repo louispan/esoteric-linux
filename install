@@ -48,7 +48,7 @@ fi
 if [ -z "$DISPLAY" ]; then
     echo "DISPLAY not set, not installing linuxrc."
 else
-    append_source "$SOURCE_DIR/bin/path.bash_profile" "$HOME/.bash_profile"
+    append_source "$SOURCE_DIR/bin/path.bash_profile" "$HOME/.bash_profile.before.local"
 
     mkdir -p "$HOME/.kde/share/apps/konsole" # debian 8 & ubuntu 14.04
     link "$SOURCE_DIR/share/.local/share/kxmlgui5/konsole/konsoleui.rc" "$HOME/.kde/share/apps/konsole/konsoleui.rc"
